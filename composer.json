@@ -1,0 +1,37 @@
+{
+    "name": "profesia/psr-middlewares",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Matej Bádal",
+            "email": "badal@profesia.sk"
+        }
+    ],
+    "require": {
+        "php": "~8.0",
+        "psr/http-server-middleware": "^1.0",
+        "psr/http-factory": "^1.0",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "mockery/mockery": "^1.5",
+        "phpstan/phpstan": "^1.4",
+        "nyholm/psr7": "^1.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Profesia\\Psr\\Middleware\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Profesia\\Psr\\Middleware\\Test\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "XDEBUG_MODE=coverage ./vendor/bin/phpunit",
+        "analyse": "./vendor/bin/phpstan analyse"
+    },
+    "license": "MIT"
+}
