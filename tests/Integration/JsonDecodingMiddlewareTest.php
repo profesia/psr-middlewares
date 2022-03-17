@@ -90,7 +90,7 @@ class JsonDecodingMiddlewareTest extends TestCase
             $factory
         );
 
-        $stream =             Stream::create('{:');
+        $stream = Stream::create('{:');
         $stream->rewind();
         $request = new ServerRequest(
             'GET',
@@ -120,11 +120,11 @@ class JsonDecodingMiddlewareTest extends TestCase
         );
 
         $requestContent = ["a" => 1];
-        $stream =             Stream::create(
+        $stream         = Stream::create(
             json_encode($requestContent)
         );
         $stream->rewind();
-        $request        = new ServerRequest(
+        $request = new ServerRequest(
             'GET',
             'https:://test4.com',
             [
@@ -145,6 +145,45 @@ class JsonDecodingMiddlewareTest extends TestCase
         $responseBody->rewind();
         $responseContents = json_decode($responseBody->getContents(), true);
         $this->assertEquals($requestContent, $responseContents['parsedBody']);
+        $this->assertEquals(json_encode($requestContent), $responseContents['body']);
+        $this->assertEquals(
+            ['Content-Type' => ['application/json']],
+            $responseContents['headers']
+        );
+    }
+
+    public function testWillPassOriginalBody()
+    {
+        $factory    = new Psr17Factory();
+        $middleware = new JsonDecodingMiddleware(
+            $factory
+        );
+
+        $requestContent = ["a" => 1];
+        $stream         = Stream::create(
+            json_encode($requestContent)
+        );
+        $stream->rewind();
+        $request = new ServerRequest(
+            'GET',
+            'https:://test5.com',
+            [
+                'Content-Type' => ['application/json'],
+            ],
+            $stream
+        );
+
+        $response = $middleware->process(
+            $request,
+            new TestRequestHandler(
+                $factory
+            )
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $responseBody = $response->getBody();
+        $responseBody->rewind();
+        $responseContents = json_decode($responseBody->getContents(), true);
         $this->assertEquals(json_encode($requestContent), $responseContents['body']);
         $this->assertEquals(
             ['Content-Type' => ['application/json']],
