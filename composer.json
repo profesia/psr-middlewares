@@ -1,5 +1,6 @@
 {
     "name": "profesia/psr-middlewares",
+    "description": "Collection of PSR middlewares",
     "type": "library",
     "authors": [
         {
