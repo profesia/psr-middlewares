@@ -29,19 +29,19 @@ class TestRequestHandler implements RequestHandlerInterface
 
         $body = $request->getBody();
         $body->rewind();
-        $response = $response->withBody(
-            Stream::create(
-                json_encode(
-                    [
-                        'headers' => $request->getHeaders(),
-                        'body' => $body->getContents(),
-                        'parsedBody' => $request->getParsedBody(),
-                    ]
+
+        return $response
+            ->withBody(
+                Stream::create(
+                    json_encode(
+                        [
+                            'headers' => $request->getHeaders(),
+                            'body' => $body->getContents(),
+                            'parsedBody' => $request->getParsedBody(),
+                        ]
+                    )
                 )
             )
-        );
-
-
-        return $response->withHeader('Content-Type', 'application/json');
+            ->withHeader('Content-Type', 'application/json');
     }
 }

@@ -12,6 +12,7 @@ composer require profesia/psr-middlewares
 - PHP 8.0+
 ## Table of contents
 - [JsonDecodingMiddleware](src/JsonDecodingMiddleware.php)
+- [HeaderTokenValidationMiddleware](src/HeaderTokenValidationMiddleware.php)
 ## Author
 Matej Bádal - matej.badal@profesia.sk
 
