@@ -14,26 +14,19 @@ class HeaderTokenValidationMiddleware implements MiddlewareInterface
 {
     private const HTTP_UNAUTHORIZED = 401;
 
-    private string $headerName;
-    private string $token;
-    private ResponseFactoryInterface $responseFactory;
-
     public function __construct(
-        ResponseFactoryInterface $responseFactory,
-        string $headerName,
-        string $token
+        private ResponseFactoryInterface $responseFactory,
+        private string $headerName,
+        private string $token
     ) {
-        $this->responseFactory = $responseFactory;
-        $this->headerName      = $headerName;
-        $this->token           = $token;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $credentials = $request->getHeader($this->headerName);
-        $token       = $credentials[0] ?? null;
+        $headerToken = $credentials[0] ?? null;
 
-        if ($this->token !== $token) {
+        if ($this->token !== $headerToken) {
             return $this->responseFactory->createResponse(
                 self::HTTP_UNAUTHORIZED,
                 'Unauthorized'
