@@ -20,18 +20,54 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
     public function provideDataForVerificationTest(): array
     {
         $factory = new Psr17Factory();
+
         return [
             [
                 new ServerRequest(
                     'POST',
-                    'https://test.uri',
+                    'https://test1.uri',
                     [
-                        'authorization' => ['test1 test2']
+                        'authorization' => ['test1 test2'],
                     ]
                 ),
                 $factory->createResponse(200, 'OK'),
                 200,
                 'OK',
+                json_encode(
+                    [
+                        'headers'    => [
+                            'Host'          => [
+                                'test1.uri',
+                            ],
+                            'authorization' => [
+                                'test1 test2',
+                            ],
+                        ],
+                        'body'       => '',
+                        'parsedBody' => null,
+                    ]
+                ),
+            ],
+            [
+                new ServerRequest(
+                    'POST',
+                    'https://test2.uri',
+                    [
+                        'authorization' => ['test1'],
+                    ]
+                ),
+                $factory->createResponse(200, 'OK'),
+                200,
+                'OK',
+                json_encode(
+                    [
+                        'headers' => [
+                            'Host'          => [
+                                'test2.uri',
+                            ]
+                        ],
+                    ]
+                ),
             ],
         ];
     }
@@ -41,6 +77,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
      * @param ResponseInterface      $response
      * @param int                    $expectedStatusCode
      * @param string                 $expectedReasonPhrase
+     * @param string                 $expectedResponseBody
      *
      * @return void
      * @dataProvider provideDataForVerificationTest
@@ -49,13 +86,16 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
         ServerRequestInterface $request,
         ResponseInterface $response,
         int $expectedStatusCode,
-        string $expectedReasonPhrase
+        string $expectedReasonPhrase,
+        string $expectedResponseBody
     ): void {
         $factory = new Psr17Factory();
 
         /** @var MockInterface|Client $client */
         $client = Mockery::mock(Client::class);
-        if ($expectedReasonPhrase === 'OK') {
+        $decodedExpectedBody = json_decode($expectedResponseBody, true);
+        $hasBody = array_key_exists('body', $decodedExpectedBody);
+        if ($hasBody === true) {
             $header      = implode(' ', $request->getHeader('authorization'));
             $headerParts = explode(' ', $header);
 
@@ -85,5 +125,10 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
 
         $this->assertEquals($expectedStatusCode, $response->getStatusCode());
         $this->assertEquals($expectedReasonPhrase, $response->getReasonPhrase());
+        if ($hasBody === true) {
+            $actualResponseBodyStream = $actualResponse->getBody();
+            $actualResponseBodyStream->rewind();
+            $this->assertEquals($expectedResponseBody, $actualResponseBodyStream->getContents());
+        }
     }
 }
