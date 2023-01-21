@@ -19,7 +19,6 @@ class TestRequestHandler implements RequestHandlerInterface
         $this->factory = $factory;
     }
 
-
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $response = $this->factory->createResponse(
@@ -35,8 +34,8 @@ class TestRequestHandler implements RequestHandlerInterface
                 Stream::create(
                     json_encode(
                         [
-                            'headers' => $request->getHeaders(),
-                            'body' => $body->getContents(),
+                            'headers'    => $request->getHeaders(),
+                            'body'       => $body->getContents(),
                             'parsedBody' => $request->getParsedBody(),
                         ]
                     )
