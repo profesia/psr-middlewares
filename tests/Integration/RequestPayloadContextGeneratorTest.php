@@ -15,6 +15,15 @@ class RequestPayloadContextGeneratorTest extends TestCase
 {
     public function provideIncompleteRequestData(): array
     {
+        $requiredKeysStructure = [
+            'eventType'     => 'message.attributes.eventType',
+            'occurredOn'    => 'message.attributes.eventOccurredOn',
+            'correlationId' => 'message.attributes.correlationId',
+            'target'        => 'message.attributes.target',
+        ];
+
+        $requiredKeysString = implode(', ', $requiredKeysStructure);
+
         return [
             [
                 new ServerRequest(
@@ -30,7 +39,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ]
                     )
                 ),
-                new RuntimeException('Missing [message] key in the message payload'),
+                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
                 new ServerRequest(
@@ -47,7 +56,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ]
                     )
                 ),
-                new RuntimeException('Missing [attributes] key in the message["message"] payload'),
+                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
                 new ServerRequest(
@@ -66,9 +75,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ]
                     )
                 ),
-                new RuntimeException(
-                    'Missing [eventType, eventOccurredOn, correlationId, target] key in the message["message"]["attributes"] payload'
-                ),
+                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
                 new ServerRequest(
@@ -89,7 +96,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ]
                     )
                 ),
-                new RuntimeException('Missing [eventOccurredOn, correlationId, target] key in the message["message"]["attributes"] payload'),
+                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
                 new ServerRequest(
@@ -111,7 +118,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ]
                     )
                 ),
-                new RuntimeException('Missing [correlationId, target] key in the message["message"]["attributes"] payload'),
+                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
                 new ServerRequest(
@@ -134,7 +141,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ]
                     )
                 ),
-                new RuntimeException('Missing [target] key in the message["message"]["attributes"] payload'),
+                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
         ];
     }
@@ -148,7 +155,14 @@ class RequestPayloadContextGeneratorTest extends TestCase
             'target'          => 'target',
         ];
 
-        $generator = new RequestPayloadContextGenerator();
+        $generator = new RequestPayloadContextGenerator(
+            [
+                'eventType'     => 'message.attributes.eventType',
+                'occurredOn'    => 'message.attributes.eventOccurredOn',
+                'correlationId' => 'message.attributes.correlationId',
+                'target'        => 'message.attributes.target',
+            ]
+        );
         $request   = new ServerRequest(
             'get',
             'https://test1.sk',
@@ -188,7 +202,14 @@ class RequestPayloadContextGeneratorTest extends TestCase
      */
     public function testWillThrowAnExceptionOnRequestStructureMismatch(ServerRequestInterface $request, RuntimeException $exception): void
     {
-        $generator = new RequestPayloadContextGenerator();
+        $generator = new RequestPayloadContextGenerator(
+            [
+                'eventType'     => 'message.attributes.eventType',
+                'occurredOn'    => 'message.attributes.eventOccurredOn',
+                'correlationId' => 'message.attributes.correlationId',
+                'target'        => 'message.attributes.target',
+            ]
+        );
 
         $this->expectExceptionObject($exception);
         $generator->generate($request);

@@ -6,14 +6,11 @@ namespace Profesia\Psr\Middleware\Extra;
 
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
-use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Constraints;
 
 final class RequestPayloadContextGenerator implements RequestContextGeneratingInterface
 {
 
     public function __construct(
-        //private ValidatorInterface $validator,
         private array $requiredKeysStructure
     ) {
     }
@@ -32,34 +29,32 @@ final class RequestPayloadContextGenerator implements RequestContextGeneratingIn
         $decodedContent = json_decode($rawContents, true, JSON_THROW_ON_ERROR);
         $body->rewind();
 
-        $validator = Validation::createValidator();
+        try {
+            $returnArray = [];
+            foreach ($this->requiredKeysStructure as $outputKey => $path) {
+                $returnArray[$outputKey] = self::extractPathValue($decodedContent, explode('.', $path));
+            }
 
-        $constraint = new Constraints\Collection(
-            [
-                'message' => new Constraints\Collection(
-                    [
-                        'attributes' => new Constraints\Collection(
-                            [
-                                'eventType'       => new Constraints\NotBlank(),
-                                'eventOccurredOn' => new Constraints\DateTime(),
-                                'correlationId'   => new Constraints\Uuid(),
-                                'target'          => new Constraints\NotBlank(),
-                            ]
-                        ),
-                    ]
-                ),
-            ]
-        );
 
-        echo '<pre>';
-        var_dump($validator->validate($decodedContent, $constraint));
-        exit;
+            return $returnArray;
+        } catch (RuntimeException $e) {
+            $requiredStructureString = implode(', ', $this->requiredKeysStructure);
 
-        return [
-            'eventType'     => $decodedContent['message']['attributes']['eventType'],
-            'occurredOn'    => $decodedContent['message']['attributes']['eventOccurredOn'],
-            'correlationId' => $decodedContent['message']['attributes']['correlationId'],
-            'target'        => $decodedContent['message']['attributes']['target'],
-        ];
+            throw new RuntimeException("Required structure of payload: [{$requiredStructureString}] is was not supplied in the message payload");
+        }
+    }
+
+    private static function extractPathValue(array $payload, array $requiredKeysStructure): mixed
+    {
+        $payloadPart = $payload;
+        foreach ($requiredKeysStructure as $key) {
+            if (array_key_exists($key, $payloadPart) === false) {
+                throw new RuntimeException();
+            }
+
+            $payloadPart = $payloadPart[$key];
+        }
+
+        return $payloadPart;
     }
 }
