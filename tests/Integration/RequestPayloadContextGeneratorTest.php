@@ -6,12 +6,12 @@ namespace Profesia\Psr\Middleware\Test\Integration;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
-use Profesia\Psr\Middleware\Extra\ProfesiaMessageContextGenerator;
+use Profesia\Psr\Middleware\Extra\RequestPayloadContextGenerator;
 use DateTimeImmutable;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
-class ProfesiaMessageContextGeneratorTest extends TestCase
+class RequestPayloadContextGeneratorTest extends TestCase
 {
     public function provideIncompleteRequestData(): array
     {
@@ -148,7 +148,7 @@ class ProfesiaMessageContextGeneratorTest extends TestCase
             'target'          => 'target',
         ];
 
-        $generator = new ProfesiaMessageContextGenerator();
+        $generator = new RequestPayloadContextGenerator();
         $request   = new ServerRequest(
             'get',
             'https://test1.sk',
@@ -188,7 +188,7 @@ class ProfesiaMessageContextGeneratorTest extends TestCase
      */
     public function testWillThrowAnExceptionOnRequestStructureMismatch(ServerRequestInterface $request, RuntimeException $exception): void
     {
-        $generator = new ProfesiaMessageContextGenerator();
+        $generator = new RequestPayloadContextGenerator();
 
         $this->expectExceptionObject($exception);
         $generator->generate($request);
