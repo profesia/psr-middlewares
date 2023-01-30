@@ -8,7 +8,7 @@ use Google\Client;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
-use Nyholm\Psr7\Stream;
+use Profesia\Psr\Middleware\Extra\RequestContextGeneratingInterface;
 use Profesia\Psr\Middleware\GoogleBearerTokenVerificationMiddleware;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -127,6 +127,23 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 )->andReturn($response);
         }
 
+        $context = [
+            'test' => 1
+        ];
+
+        /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
+        $contextGenerator = Mockery::mock(RequestContextGeneratingInterface::class);
+        $contextGenerator
+            ->shouldReceive('generate')
+            ->once()
+            ->withArgs(
+                [
+                    $request
+                ]
+            )->andReturn(
+                $context
+            );
+
         $verifyTokenString = ($verifyTokenOutput === false) ? 'false' : 'true';
         /** @var MockInterface|LoggerInterface $logger */
         $logger = Mockery::mock(LoggerInterface::class);
@@ -136,6 +153,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             ->withArgs(
                 [
                     "Verification of token done with output: [{$verifyTokenString}]",
+                    $context,
                 ]
             );
 
@@ -143,7 +161,8 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             $responseFactory,
             $client,
             $logger,
-            $headerName
+            $headerName,
+            $contextGenerator
         );
 
         $middleware->process(
@@ -224,6 +243,23 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 }
             )->andReturn($response);
 
+        $context = [
+            'test' => 1
+        ];
+
+        /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
+        $contextGenerator = Mockery::mock(RequestContextGeneratingInterface::class);
+        $contextGenerator
+            ->shouldReceive('generate')
+            ->once()
+            ->withArgs(
+                [
+                    $request
+                ]
+            )->andReturn(
+                $context
+            );
+
         /** @var MockInterface|LoggerInterface $logger */
         $logger = Mockery::mock(LoggerInterface::class);
         $logger
@@ -232,6 +268,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             ->withArgs(
                 [
                     'Bearer token has invalid format - it should contains two strings separated by a blank space',
+                    $context,
                 ]
             );
 
@@ -239,7 +276,8 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             $responseFactory,
             $client,
             $logger,
-            $headerName
+            $headerName,
+            $contextGenerator
         );
 
         $middleware->process(
@@ -331,6 +369,23 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 }
             )->andReturn($response);
 
+        $context = [
+            'test' => 1,
+        ];
+
+        /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
+        $contextGenerator = Mockery::mock(RequestContextGeneratingInterface::class);
+        $contextGenerator
+            ->shouldReceive('generate')
+            ->once()
+            ->withArgs(
+                [
+                    $request,
+                ]
+            )->andReturn(
+                $context
+            );
+
         /** @var MockInterface|LoggerInterface $logger */
         $logger = Mockery::mock(LoggerInterface::class);
         $logger
@@ -339,6 +394,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             ->withArgs(
                 [
                     "An error during verification of the token occurred. Cause: [{$message}]",
+                    $context,
                 ]
             );
 
@@ -346,7 +402,8 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             $responseFactory,
             $client,
             $logger,
-            $headerName
+            $headerName,
+            $contextGenerator
         );
 
         $middleware->process(

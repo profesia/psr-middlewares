@@ -7,6 +7,8 @@ namespace Profesia\Psr\Middleware;
 use Exception;
 use Google\Client;
 use Nyholm\Psr7\Stream;
+use Profesia\Psr\Middleware\Extra\EmptyContextGenerator;
+use Profesia\Psr\Middleware\Extra\RequestContextGeneratingInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -17,22 +19,33 @@ use Psr\Log\LoggerInterface;
 class GoogleBearerTokenVerificationMiddleware implements MiddlewareInterface
 {
     private const HTTP_OK = 200;
+    private RequestContextGeneratingInterface $contextGenerator;
 
     public function __construct(
         private ResponseFactoryInterface $responseFactory,
         private Client $client,
         private LoggerInterface $logger,
-        private string $headerName
+        private string $headerName,
+        ?RequestContextGeneratingInterface $contextGenerator = null
     ) {
+        if ($contextGenerator === null) {
+            $this->contextGenerator = new EmptyContextGenerator();
+        } else {
+            $this->contextGenerator = $contextGenerator;
+        }
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $bearerToken  = implode(' ', $request->getHeader($this->headerName));
         $idTokenParts = explode(' ', $bearerToken);
+        $context      = $this->contextGenerator->generate($request);
 
         if (count($idTokenParts) !== 2) {
-            $this->logger->error('Bearer token has invalid format - it should contains two strings separated by a blank space');
+            $this->logger->error(
+                'Bearer token has invalid format - it should contains two strings separated by a blank space',
+                $context
+            );
 
             return $this->createInvalidResponseWithHeaders();
         }
@@ -43,9 +56,15 @@ class GoogleBearerTokenVerificationMiddleware implements MiddlewareInterface
             $validToken = $this->client->verifyIdToken($idToken);
 
             $output = ($validToken === false) ? 'false' : 'true';
-            $this->logger->info("Verification of token done with output: [{$output}]");
+            $this->logger->info(
+                "Verification of token done with output: [{$output}]",
+                $context
+            );
         } catch (Exception $e) {
-            $this->logger->error("An error during verification of the token occurred. Cause: [{$e->getMessage()}]");
+            $this->logger->error(
+                "An error during verification of the token occurred. Cause: [{$e->getMessage()}]",
+                $context
+            );
         }
 
         if ($validToken === false) {
