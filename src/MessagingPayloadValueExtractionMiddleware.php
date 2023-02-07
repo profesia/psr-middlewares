@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Profesia\Psr\Middleware;
 
+use Profesia\Psr\Middleware\Exception\BadConfigurationException;
 use Profesia\Psr\Middleware\Extra\RequestContextGeneratingInterface;
 use Profesia\Psr\Middleware\Extra\ServerVariablesStorageInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -14,6 +15,16 @@ use Psr\Log\LoggerInterface;
 
 class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddleware
 {
+    /**
+     * @param ResponseFactoryInterface               $responseFactory
+     * @param LoggerInterface                        $logger
+     * @param ServerVariablesStorageInterface        $variablesStore
+     * @param array                                  $pathToPayloadValue
+     * @param string                                 $payloadValueStoreKey
+     * @param RequestContextGeneratingInterface|null $contextGenerator
+     *
+     * @throws BadConfigurationException
+     */
     public function __construct(
         private ResponseFactoryInterface $responseFactory,
         private LoggerInterface $logger,
@@ -22,16 +33,34 @@ class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddlew
         private string $payloadValueStoreKey,
         ?RequestContextGeneratingInterface $contextGenerator = null
     ) {
+        if ($this->pathToPayloadValue === []) {
+            throw new BadConfigurationException('Path to payload value could not be empty');
+        }
+
         parent::__construct($this->responseFactory, $contextGenerator);
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $context      = $this->generateContext($request);
-        $finalValue   = $request->getParsedBody();
-        $existingKeys = [];
+        $context = $this->generateContext($request);
+        $payload = $request->getParsedBody();
+        if (is_array($payload) === false) {
+            $message = 'No payload supplied';
+            $this->logger->error($message, $context);
+
+            return $this->createInvalidResponseWithHeaders(
+                [
+                    'status'  => 'Bad request',
+                    'message' => $message,
+                ]
+
+            );
+        }
+
+        $existingKeys   = [];
+        $extractedValue = $payload;
         foreach ($this->pathToPayloadValue as $key) {
-            if (array_key_exists($key, $finalValue) === false) {
+            if (array_key_exists($key, $extractedValue) === false) {
                 $path    = implode(', ', $existingKeys);
                 $message = "Missing key: [{$key}] in the payload path: [{$path}]";
 
@@ -47,10 +76,24 @@ class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddlew
             }
 
             $existingKeys[] = $key;
-            $finalValue     = $finalValue[$key];
+            $extractedValue = $extractedValue[$key];
         }
 
-        $this->variablesStore->store($this->payloadValueStoreKey, $finalValue);
+        if (is_array($extractedValue) === true) {
+            $message = 'Extracted value should be of a primitive type';
+
+            $this->logger->error($message, $context);
+
+            return $this->createInvalidResponseWithHeaders(
+                [
+                    'status'  => 'Bad request',
+                    'message' => $message,
+                ]
+
+            );
+        }
+
+        $this->variablesStore->store($this->payloadValueStoreKey, $extractedValue);
 
         return $handler->handle($request);
     }

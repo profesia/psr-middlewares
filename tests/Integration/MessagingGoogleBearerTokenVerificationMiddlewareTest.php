@@ -10,12 +10,12 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
-use Profesia\Psr\Middleware\GoogleBearerTokenVerificationMessagingMiddleware;
+use Profesia\Psr\Middleware\MessagingGoogleBearerTokenVerificationMiddleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\NullLogger;
 
-class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
+class MessagingGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
 {
     public function provideDataForVerificationTest(): array
     {
@@ -109,7 +109,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 )->andReturn([]);
         }
 
-        $middleware = new GoogleBearerTokenVerificationMessagingMiddleware(
+        $middleware = new MessagingGoogleBearerTokenVerificationMiddleware(
             $factory,
             $client,
             new NullLogger(),

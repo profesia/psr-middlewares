@@ -13,7 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 
-class GoogleBearerTokenVerificationMessagingMiddleware extends AbstractMessagingMiddleware
+class MessagingGoogleBearerTokenVerificationMiddleware extends AbstractMessagingMiddleware
 {
     public function __construct(
         private ResponseFactoryInterface $responseFactory,

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - development
       - /^v\d+\.\d+\.\d+/
 
 jobs:

@@ -32,18 +32,25 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
                 ],
                 "Missing key: [message] in the payload path: []",
             ],
+            [
+                [
+                'test'
+                ],
+                null,
+                'No payload supplied'
+            ],
         ];
     }
 
     /**
      * @param array  $path
-     * @param array  $parsedBody
+     * @param mixed  $parsedBody
      * @param string $exceptionMessage
      *
      * @return void
      * @dataProvider provideDataForDetectingMissingPayloadPath
      */
-    public function testCanDetectMissingPayloadPath(array $path, array $parsedBody, string $exceptionMessage): void
+    public function testCanDetectErrorStates(array $path, mixed $parsedBody, string $exceptionMessage): void
     {
         $storeKey = 'storeKey';
         $context  = [
@@ -141,6 +148,97 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
 
         /** @var MockInterface|RequestHandlerInterface $handler */
         $handler = Mockery::mock(RequestHandlerInterface::class);
+
+        $middleware->process(
+            $request,
+            $handler
+        );
+    }
+
+    public function testCanProcess(): void
+    {
+        $value = 'testValue';
+        $path = [
+            'message',
+            'attributes',
+            'test'
+        ];
+        $parsedBody = [
+            'message' => [
+                'attributes' => [
+                    'test' => $value
+                ]
+            ]
+        ];
+        $storeKey = 'storeKey';
+        $context  = [
+            'context' => [],
+        ];
+
+        /** @var MockInterface|ServerRequestInterface $request */
+        $request = Mockery::mock(ServerRequestInterface::class);
+        $request
+            ->shouldReceive('getParsedBody')
+            ->once()
+            ->andReturn(
+                $parsedBody
+            );
+
+        /** @var MockInterface|ResponseInterface $response */
+        $response = Mockery::mock(ResponseInterface::class);
+
+        /** @var MockInterface|ResponseFactoryInterface $responseFactory */
+        $responseFactory = Mockery::mock(ResponseFactoryInterface::class);
+
+        /** @var MockInterface|LoggerInterface $logger */
+        $logger = Mockery::mock(LoggerInterface::class);
+
+        /** @var MockInterface|ServerVariablesStorageInterface $variableStorage */
+        $variableStorage = Mockery::mock(ServerVariablesStorageInterface::class);
+        $variableStorage
+            ->shouldReceive('store')
+            ->once()
+            ->withArgs(
+                [
+                    $storeKey,
+                    $value
+                ]
+            );
+
+        /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
+        $contextGenerator = Mockery::mock(RequestContextGeneratingInterface::class);
+        $contextGenerator
+            ->shouldReceive('generate')
+            ->once()
+            ->withArgs(
+                [
+                    $request,
+                ]
+            )->andReturn(
+                $context
+            );
+
+        $middleware = new MessagingPayloadValueExtractionMiddleware(
+            $responseFactory,
+            $logger,
+            $variableStorage,
+            $path,
+            $storeKey,
+            $contextGenerator
+        );
+
+        /** @var MockInterface|RequestHandlerInterface $handler */
+        $handler = Mockery::mock(RequestHandlerInterface::class);
+        $handler
+            ->shouldReceive('handle')
+            ->once()
+            ->withArgs(
+                [
+                    $request
+                ]
+            )->andReturn(
+                $response
+            );
 
         $middleware->process(
             $request,

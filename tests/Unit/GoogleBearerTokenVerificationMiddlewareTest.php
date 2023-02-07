@@ -9,7 +9,7 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
 use Profesia\Psr\Middleware\Extra\RequestContextGeneratingInterface;
-use Profesia\Psr\Middleware\GoogleBearerTokenVerificationMessagingMiddleware;
+use Profesia\Psr\Middleware\MessagingGoogleBearerTokenVerificationMiddleware;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -157,7 +157,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 ]
             );
 
-        $middleware = new GoogleBearerTokenVerificationMessagingMiddleware(
+        $middleware = new MessagingGoogleBearerTokenVerificationMiddleware(
             $responseFactory,
             $client,
             $logger,
@@ -272,7 +272,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 ]
             );
 
-        $middleware = new GoogleBearerTokenVerificationMessagingMiddleware(
+        $middleware = new MessagingGoogleBearerTokenVerificationMiddleware(
             $responseFactory,
             $client,
             $logger,
@@ -398,7 +398,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 ]
             );
 
-        $middleware = new GoogleBearerTokenVerificationMessagingMiddleware(
+        $middleware = new MessagingGoogleBearerTokenVerificationMiddleware(
             $responseFactory,
             $client,
             $logger,
