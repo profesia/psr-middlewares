@@ -26,120 +26,111 @@ class RequestPayloadContextGeneratorTest extends TestCase
 
         return [
             [
-                new ServerRequest(
+                (new ServerRequest(
                     'get',
                     'https://test2.sk',
                     [
                         'Content-Type' => [
                             'application/json',
                         ],
-                    ],
-                    json_encode(
-                        [
-                        ]
-                    )
-                ),
+                    ]
+                ))->withParsedBody([]),
                 new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
-                new ServerRequest(
+                (new ServerRequest(
                     'get',
                     'https://test3.sk',
                     [
                         'Content-Type' => [
                             'application/json',
                         ],
-                    ],
-                    json_encode(
-                        [
-                            'message' => [],
-                        ]
-                    )
+                    ]
+                ))->withParsedBody(
+                    [
+                        'message' => [],
+                    ]
                 ),
                 new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
-                new ServerRequest(
+                (new ServerRequest(
                     'get',
                     'https://test4.sk',
                     [
                         'Content-Type' => [
                             'application/json',
                         ],
-                    ],
-                    json_encode(
-                        [
-                            'message' => [
-                                'attributes' => [],
-                            ],
-                        ]
-                    )
+                    ]
+                ))->withParsedBody(
+                    [
+                        'message' => [
+                            'attributes' => [],
+                        ],
+                    ]
                 ),
                 new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
-                new ServerRequest(
+                (new ServerRequest(
                     'get',
                     'https://test5.sk',
                     [
                         'Content-Type' => [
                             'application/json',
                         ],
-                    ],
-                    json_encode(
-                        [
-                            'message' => [
-                                'attributes' => [
-                                    'eventType' => 'TestEvent',
-                                ],
+                    ]
+                ))->withParsedBody(
+                    [
+                        'message' => [
+                            'attributes' => [
+                                'eventType' => 'TestEvent',
                             ],
-                        ]
-                    )
+                        ],
+                    ]
                 ),
                 new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
-                new ServerRequest(
+                (new ServerRequest(
                     'get',
                     'https://test6.sk',
                     [
                         'Content-Type' => [
                             'application/json',
                         ],
-                    ],
-                    json_encode(
-                        [
-                            'message' => [
-                                'attributes' => [
-                                    'eventType'       => 'TestEvent',
-                                    'eventOccurredOn' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
-                                ],
+                    ]
+                ))->withParsedBody(
+                    [
+                        'message' => [
+                            'attributes' => [
+                                'eventType'       => 'TestEvent',
+                                'eventOccurredOn' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
                             ],
-                        ]
-                    )
+                        ],
+                    ]
                 ),
                 new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
-                new ServerRequest(
+                (new ServerRequest(
                     'get',
                     'https://test7.sk',
                     [
                         'Content-Type' => [
                             'application/json',
                         ],
-                    ],
-                    json_encode(
-                        [
-                            'message' => [
-                                'attributes' => [
-                                    'eventType'       => 'TestEvent',
-                                    'eventOccurredOn' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
-                                    'correlationId'   => 'test-id',
-                                ],
+                    ]
+                ))->withParsedBody(
+                    [
+                        'message' => [
+                            'attributes' => [
+                                'eventType'       => 'TestEvent',
+                                'eventOccurredOn' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
+                                'correlationId'   => 'test-id',
                             ],
-                        ]
-                    )
+                        ],
+                    ]
                 ),
                 new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
@@ -170,14 +161,14 @@ class RequestPayloadContextGeneratorTest extends TestCase
                 'Content-Type' => [
                     'application/json',
                 ],
-            ],
-            json_encode(
-                [
-                    'message' => [
-                        'attributes' => $data,
-                    ],
-                ]
-            )
+            ]
+        );
+        $request   = $request->withParsedBody(
+            [
+                'message' => [
+                    'attributes' => $data,
+                ],
+            ]
         );
 
         $this->assertEquals(

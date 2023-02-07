@@ -9,7 +9,6 @@ use RuntimeException;
 
 final class RequestPayloadContextGenerator implements RequestContextGeneratingInterface
 {
-
     public function __construct(
         private array $requiredKeysStructure
     ) {
@@ -23,13 +22,9 @@ final class RequestPayloadContextGenerator implements RequestContextGeneratingIn
      */
     public function generate(ServerRequestInterface $request): array
     {
-        $body = $request->getBody();
-        $body->rewind();
-        $rawContents    = $body->getContents();
-        $decodedContent = json_decode($rawContents, true, JSON_THROW_ON_ERROR);
-        $body->rewind();
-
         try {
+            $decodedContent = $request->getParsedBody();
+
             $returnArray = [];
             foreach ($this->requiredKeysStructure as $outputKey => $path) {
                 $returnArray[$outputKey] = self::extractPathValue($decodedContent, explode('.', $path));

@@ -6,21 +6,15 @@ namespace Profesia\Psr\Middleware;
 
 use Exception;
 use Google\Client;
-use Nyholm\Psr7\Stream;
-use Profesia\Psr\Middleware\Extra\EmptyContextGenerator;
 use Profesia\Psr\Middleware\Extra\RequestContextGeneratingInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 
-class GoogleBearerTokenVerificationMiddleware implements MiddlewareInterface
+class GoogleBearerTokenVerificationMessagingMiddleware extends AbstractMessagingMiddleware
 {
-    private const HTTP_OK = 200;
-    private RequestContextGeneratingInterface $contextGenerator;
-
     public function __construct(
         private ResponseFactoryInterface $responseFactory,
         private Client $client,
@@ -28,18 +22,14 @@ class GoogleBearerTokenVerificationMiddleware implements MiddlewareInterface
         private string $headerName,
         ?RequestContextGeneratingInterface $contextGenerator = null
     ) {
-        if ($contextGenerator === null) {
-            $this->contextGenerator = new EmptyContextGenerator();
-        } else {
-            $this->contextGenerator = $contextGenerator;
-        }
+        parent::__construct($this->responseFactory, $contextGenerator);
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $bearerToken  = implode(' ', $request->getHeader($this->headerName));
         $idTokenParts = explode(' ', $bearerToken);
-        $context      = $this->contextGenerator->generate($request);
+        $context      = $this->generateContext($request);
 
         if (count($idTokenParts) !== 2) {
             $this->logger->error(
@@ -47,7 +37,9 @@ class GoogleBearerTokenVerificationMiddleware implements MiddlewareInterface
                 $context
             );
 
-            return $this->createInvalidResponseWithHeaders();
+            return $this->createInvalidResponseWithHeaders(
+                ['status' => 'Unauthorized', 'message' => 'Incorrect ID token']
+            );
         }
 
         $idToken    = $idTokenParts[1];
@@ -68,36 +60,11 @@ class GoogleBearerTokenVerificationMiddleware implements MiddlewareInterface
         }
 
         if ($validToken === false) {
-            return $this->createInvalidResponseWithHeaders();
+            return $this->createInvalidResponseWithHeaders(
+                ['status' => 'Unauthorized', 'message' => 'Incorrect ID token']
+            );
         }
 
         return $handler->handle($request);
-    }
-
-    private function createInvalidResponseWithHeaders(): ResponseInterface
-    {
-        $response = $this->responseFactory->createResponse(
-            self::HTTP_OK,
-            'OK',
-        );
-        $response = $response->withBody(
-            Stream::create(
-                json_encode(
-                    ['status' => 'Unauthorized', 'message' => 'Incorrect ID token']
-                )
-            )
-        );
-
-        $headers = [
-            'Content-Type' => [
-                'application/json',
-            ],
-        ];
-
-        foreach ($headers as $headerName => $headerValue) {
-            $response = $response->withHeader($headerName, $headerValue);
-        }
-
-        return $response;
     }
 }
