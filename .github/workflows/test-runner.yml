@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - master
-      - /^feature\/.{1,}
-      - /^v\d+\.\d+\.\d+/
+      - 'feature/**'
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build:
