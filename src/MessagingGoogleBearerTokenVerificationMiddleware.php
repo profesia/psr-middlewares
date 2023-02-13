@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class MessagingGoogleBearerTokenVerificationMiddleware extends AbstractMessagingMiddleware
 {
@@ -29,7 +30,15 @@ class MessagingGoogleBearerTokenVerificationMiddleware extends AbstractMessaging
     {
         $bearerToken  = implode(' ', $request->getHeader($this->headerName));
         $idTokenParts = explode(' ', $bearerToken);
-        $context      = $this->generateContext($request);
+        $context = [];
+
+        try {
+            $context = $this->generateContext($request);
+        } catch (RuntimeException $e) {
+            $this->logger->error(
+                "Error during context generation. Cause: [{$e->getMessage()}]"
+            );
+        }
 
         if (count($idTokenParts) !== 2) {
             $this->logger->error(
@@ -42,8 +51,7 @@ class MessagingGoogleBearerTokenVerificationMiddleware extends AbstractMessaging
             );
         }
 
-        $idToken    = $idTokenParts[1];
-        $validToken = false;
+        $idToken = $idTokenParts[1];
         try {
             $validToken = $this->client->verifyIdToken($idToken);
 
@@ -52,16 +60,16 @@ class MessagingGoogleBearerTokenVerificationMiddleware extends AbstractMessaging
                 "Verification of token done with output: [{$output}]",
                 $context
             );
+
+            if ($validToken === false) {
+                return $this->createInvalidResponseWithHeaders(
+                    ['status' => 'Unauthorized', 'message' => 'Incorrect ID token']
+                );
+            }
         } catch (Exception $e) {
             $this->logger->error(
                 "An error during verification of the token occurred. Cause: [{$e->getMessage()}]",
                 $context
-            );
-        }
-
-        if ($validToken === false) {
-            return $this->createInvalidResponseWithHeaders(
-                ['status' => 'Unauthorized', 'message' => 'Incorrect ID token']
             );
         }
 

@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddleware
 {
@@ -42,8 +43,18 @@ class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddlew
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $context = $this->generateContext($request);
+        $context = [];
+        try {
+            $context = $this->generateContext($request);
+        } catch (RuntimeException $e) {
+            $this->logger->error(
+                "Error during context generation. Cause: [{$e->getMessage()}]"
+            );
+        }
+
+
         $payload = $request->getParsedBody();
+
         if (is_array($payload) === false) {
             $message = 'No payload supplied';
             $this->logger->error($message, $context);
@@ -93,6 +104,7 @@ class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddlew
             );
         }
 
+        $this->logger->info("Storing value: [{$extractedValue}] under key: [{$this->payloadValueStoreKey}]");
         $this->variablesStore->store($this->payloadValueStoreKey, $extractedValue);
 
         return $handler->handle($request);
