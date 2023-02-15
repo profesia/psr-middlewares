@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Profesia\Psr\Middleware\Test\Integration;
 
-use Google\Client;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
-use Mockery\MockInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
+use Nyholm\Psr7\Stream;
+use PHPUnit\Framework\TestCase;
 use Profesia\Psr\Middleware\MessagingGoogleBearerTokenVerificationMiddleware;
+use Profesia\Psr\Middleware\Test\Integration\Assets\NullClient;
+use Profesia\Psr\Middleware\Test\Integration\Assets\TestRequestHandler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\NullLogger;
 
-class MessagingGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
+class MessagingGoogleBearerTokenVerificationMiddlewareTest extends TestCase
 {
     public function provideDataForVerificationTest(): array
     {
@@ -62,9 +62,9 @@ class MessagingGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCa
                 json_encode(
                     [
                         'headers' => [
-                            'Host'          => [
+                            'Host' => [
                                 'test2.uri',
-                            ]
+                            ],
                         ],
                     ]
                 ),
@@ -91,29 +91,15 @@ class MessagingGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCa
     ): void {
         $factory = new Psr17Factory();
 
-        /** @var MockInterface|Client $client */
-        $client = Mockery::mock(Client::class);
         $decodedExpectedBody = json_decode($expectedResponseBody, true);
-        $hasBody = array_key_exists('body', $decodedExpectedBody);
-        if ($hasBody === true) {
-            $header      = implode(' ', $request->getHeader('authorization'));
-            $headerParts = explode(' ', $header);
-
-            $client
-                ->shouldReceive('verifyIdToken')
-                ->once()
-                ->withArgs(
-                    [
-                        $headerParts[1],
-                    ]
-                )->andReturn([]);
-        }
+        $hasBody             = array_key_exists('body', $decodedExpectedBody);
 
         $middleware = new MessagingGoogleBearerTokenVerificationMiddleware(
             $factory,
-            $client,
+            new NullClient(),
             new NullLogger(),
-            'authorization'
+            'authorization',
+            'headerContextKey'
         );
 
         $actualResponse = $middleware->process(
@@ -130,5 +116,49 @@ class MessagingGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCa
             $actualResponseBodyStream->rewind();
             $this->assertEquals($expectedResponseBody, $actualResponseBodyStream->getContents());
         }
+    }
+
+    public function provideDataForErrorStatesTest(): array
+    {
+        $factory = new Psr17Factory();
+
+        return [
+            (new ServerRequest(
+                'POST',
+                'https://test3.uri',
+                [
+                    'authorization' => ['test1 test2'],
+                ]
+            ))->withBody(
+                Stream::create(
+                    json_encode(
+                        [
+                            'message' => [
+                                'attributes' => [
+
+                                ]
+                            ]
+                        ]
+                    )
+                )
+            ),
+            $factory->createResponse(200, 'OK'),
+            200,
+            'OK',
+            json_encode(
+                [
+                    'headers'    => [
+                        'Host'          => [
+                            'test3.uri',
+                        ],
+                        'authorization' => [
+                            'test1 test2',
+                        ],
+                    ],
+                    'body'       => '',
+                    'parsedBody' => null,
+                ]
+            ),
+        ];
     }
 }

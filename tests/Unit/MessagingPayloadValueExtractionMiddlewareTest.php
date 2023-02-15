@@ -7,7 +7,6 @@ namespace Profesia\Psr\Middleware\Test\Unit;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
-use Profesia\Psr\Middleware\Extra\RequestContextGeneratingInterface;
 use Profesia\Psr\Middleware\Extra\ServerVariablesStorageInterface;
 use Profesia\Psr\Middleware\MessagingPayloadValueExtractionMiddleware;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -56,6 +55,7 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
         $context  = [
             'context' => [],
         ];
+        $headerContextKey = 'headerContextKey';
 
         /** @var MockInterface|ServerRequestInterface $request */
         $request = Mockery::mock(ServerRequestInterface::class);
@@ -64,6 +64,16 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
             ->once()
             ->andReturn(
                 $parsedBody
+            );
+        $request
+            ->shouldReceive('getHeader')
+            ->once()
+            ->withArgs(
+                [
+                    $headerContextKey
+                ]
+            )->andReturn(
+                $context
             );
 
         /** @var MockInterface|ResponseInterface $response */
@@ -124,26 +134,13 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
         /** @var MockInterface|ServerVariablesStorageInterface $variableStorage */
         $variableStorage = Mockery::mock(ServerVariablesStorageInterface::class);
 
-        /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
-        $contextGenerator = Mockery::mock(RequestContextGeneratingInterface::class);
-        $contextGenerator
-            ->shouldReceive('generate')
-            ->once()
-            ->withArgs(
-                [
-                    $request,
-                ]
-            )->andReturn(
-                $context
-            );
-
         $middleware = new MessagingPayloadValueExtractionMiddleware(
             $responseFactory,
             $logger,
             $variableStorage,
             $path,
             $storeKey,
-            $contextGenerator
+            $headerContextKey
         );
 
         /** @var MockInterface|RequestHandlerInterface $handler */
@@ -174,6 +171,7 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
         $context  = [
             'context' => [],
         ];
+        $headerContextKey = 'headerContextKey';
 
         /** @var MockInterface|ServerRequestInterface $request */
         $request = Mockery::mock(ServerRequestInterface::class);
@@ -182,6 +180,16 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
             ->once()
             ->andReturn(
                 $parsedBody
+            );
+        $request
+            ->shouldReceive('getHeader')
+            ->once()
+            ->withArgs(
+                [
+                    $headerContextKey
+                ]
+            )->andReturn(
+                $context
             );
 
         /** @var MockInterface|ResponseInterface $response */
@@ -192,6 +200,14 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
 
         /** @var MockInterface|LoggerInterface $logger */
         $logger = Mockery::mock(LoggerInterface::class);
+        $logger
+            ->shouldReceive('info')
+            ->once()
+            ->withArgs(
+                [
+                    "Storing value: [{$value}] under key: [{$storeKey}]"
+                ]
+            );
 
         /** @var MockInterface|ServerVariablesStorageInterface $variableStorage */
         $variableStorage = Mockery::mock(ServerVariablesStorageInterface::class);
@@ -205,26 +221,13 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
                 ]
             );
 
-        /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
-        $contextGenerator = Mockery::mock(RequestContextGeneratingInterface::class);
-        $contextGenerator
-            ->shouldReceive('generate')
-            ->once()
-            ->withArgs(
-                [
-                    $request,
-                ]
-            )->andReturn(
-                $context
-            );
-
         $middleware = new MessagingPayloadValueExtractionMiddleware(
             $responseFactory,
             $logger,
             $variableStorage,
             $path,
             $storeKey,
-            $contextGenerator
+            $headerContextKey
         );
 
         /** @var MockInterface|RequestHandlerInterface $handler */

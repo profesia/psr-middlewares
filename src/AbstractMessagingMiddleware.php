@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Profesia\Psr\Middleware;
 
 use Nyholm\Psr7\Stream;
-use Profesia\Psr\Middleware\Extra\EmptyContextGenerator;
-use Profesia\Psr\Middleware\Extra\RequestContextGeneratingInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -16,24 +14,29 @@ abstract class AbstractMessagingMiddleware implements MiddlewareInterface
 {
     protected const HTTP_OK = 200;
 
-    private RequestContextGeneratingInterface $contextGenerator;
+    private array $context = [];
+    private bool $contextGenerated = false;
 
     public function __construct(
         private ResponseFactoryInterface $responseFactory,
-        ?RequestContextGeneratingInterface $contextGenerator = null
+        private string $contextHeaderKey
     ) {
-        if ($contextGenerator === null) {
-            $this->contextGenerator = new EmptyContextGenerator();
-        } else {
-            $this->contextGenerator = $contextGenerator;
-        }
     }
 
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return array
+     */
     protected function generateContext(ServerRequestInterface $request): array
     {
-        return $this->contextGenerator->generate(
-            $request
-        );
+        if ($this->contextGenerated === false) {
+            $this->context = $request->getHeader($this->contextHeaderKey);
+        }
+
+        $this->contextGenerated = true;
+
+        return $this->context;
     }
 
     protected function createInvalidResponseWithHeaders(array $payload): ResponseInterface

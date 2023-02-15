@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Profesia\Psr\Middleware;
 
 use Profesia\Psr\Middleware\Exception\BadConfigurationException;
+use Profesia\Psr\Middleware\Exception\ContextGenerationException;
 use Profesia\Psr\Middleware\Extra\RequestContextGeneratingInterface;
 use Profesia\Psr\Middleware\Extra\ServerVariablesStorageInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -12,17 +13,16 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 
 class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddleware
 {
     /**
-     * @param ResponseFactoryInterface               $responseFactory
-     * @param LoggerInterface                        $logger
-     * @param ServerVariablesStorageInterface        $variablesStore
-     * @param array                                  $pathToPayloadValue
-     * @param string                                 $payloadValueStoreKey
-     * @param RequestContextGeneratingInterface|null $contextGenerator
+     * @param ResponseFactoryInterface        $responseFactory
+     * @param LoggerInterface                 $logger
+     * @param ServerVariablesStorageInterface $variablesStore
+     * @param array                           $pathToPayloadValue
+     * @param string                          $payloadValueStoreKey
+     * @param string                          $contextHeaderKey
      *
      * @throws BadConfigurationException
      */
@@ -32,27 +32,18 @@ class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddlew
         private ServerVariablesStorageInterface $variablesStore,
         private array $pathToPayloadValue,
         private string $payloadValueStoreKey,
-        ?RequestContextGeneratingInterface $contextGenerator = null
+        string $contextHeaderKey
     ) {
         if ($this->pathToPayloadValue === []) {
             throw new BadConfigurationException('Path to payload value could not be empty');
         }
 
-        parent::__construct($this->responseFactory, $contextGenerator);
+        parent::__construct($this->responseFactory, $contextHeaderKey);
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $context = [];
-        try {
-            $context = $this->generateContext($request);
-        } catch (RuntimeException $e) {
-            $this->logger->error(
-                "Error during context generation. Cause: [{$e->getMessage()}]"
-            );
-        }
-
-
+        $context = $this->generateContext($request);
         $payload = $request->getParsedBody();
 
         if (is_array($payload) === false) {

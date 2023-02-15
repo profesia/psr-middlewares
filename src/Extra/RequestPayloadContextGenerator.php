@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Profesia\Psr\Middleware\Extra;
 
+use Profesia\Psr\Middleware\Exception\ContextGenerationException;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
@@ -18,7 +19,7 @@ final class RequestPayloadContextGenerator implements RequestContextGeneratingIn
      * @param ServerRequestInterface $request
      *
      * @return array
-     * @throws RuntimeException
+     * @throws ContextGenerationException
      */
     public function generate(ServerRequestInterface $request): array
     {
@@ -35,7 +36,7 @@ final class RequestPayloadContextGenerator implements RequestContextGeneratingIn
         } catch (RuntimeException $e) {
             $requiredStructureString = implode(', ', $this->requiredKeysStructure);
 
-            throw new RuntimeException("Required structure of payload: [{$requiredStructureString}] is was not supplied in the message payload");
+            throw new ContextGenerationException("Required structure of payload: [{$requiredStructureString}] is was not supplied in the message payload");
         }
     }
 

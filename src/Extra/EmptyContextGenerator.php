@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 
 final class EmptyContextGenerator implements RequestContextGeneratingInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function generate(ServerRequestInterface $request): array
     {
         return [];

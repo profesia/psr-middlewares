@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Profesia\Psr\Middleware\Extra;
 
+use Profesia\Psr\Middleware\Exception\ContextGenerationException;
 use Psr\Http\Message\ServerRequestInterface;
-use Exception;
 
 interface RequestContextGeneratingInterface
 {
@@ -13,7 +13,7 @@ interface RequestContextGeneratingInterface
      * @param ServerRequestInterface $request
      *
      * @return array
-     * throws Exception
+     * @throws ContextGenerationException
      */
     public function generate(ServerRequestInterface $request): array;
 }

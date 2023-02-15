@@ -10,6 +10,7 @@ use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use PHPUnit\Framework\TestCase;
 use Profesia\Psr\Middleware\JsonDecodingMiddleware;
+use Profesia\Psr\Middleware\Test\Integration\Assets\TestRequestHandler;
 
 class JsonDecodingMiddlewareTest extends TestCase
 {

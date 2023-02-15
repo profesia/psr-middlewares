@@ -8,7 +8,6 @@ use Google\Client;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
-use Profesia\Psr\Middleware\Extra\RequestContextGeneratingInterface;
 use Profesia\Psr\Middleware\MessagingGoogleBearerTokenVerificationMiddleware;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -18,7 +17,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use UnexpectedValueException;
 
-class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
+class MessageGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
 {
     public function provideDataForTokenVerification(): array
     {
@@ -42,6 +41,10 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
     {
         $headerName = 'test';
         $rawBearer  = ['par1 part2'];
+        $headerContextKey = 'headerContextKey';
+        $context = [
+            'test' => 1
+        ];
 
         /** @var MockInterface|ServerRequestInterface $request */
         $request = Mockery::mock(ServerRequestInterface::class);
@@ -54,6 +57,17 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 ]
             )->andReturn(
                 $rawBearer
+            );
+        $request
+            ->shouldReceive('getHeader')
+            ->once()
+            ->withArgs(
+                [
+                    $headerContextKey
+                ]
+            )
+            ->andReturn(
+                $context
             );
 
         /** @var MockInterface|Client $client */
@@ -131,19 +145,6 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             'test' => 1
         ];
 
-        /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
-        $contextGenerator = Mockery::mock(RequestContextGeneratingInterface::class);
-        $contextGenerator
-            ->shouldReceive('generate')
-            ->once()
-            ->withArgs(
-                [
-                    $request
-                ]
-            )->andReturn(
-                $context
-            );
-
         $verifyTokenString = ($verifyTokenOutput === false) ? 'false' : 'true';
         /** @var MockInterface|LoggerInterface $logger */
         $logger = Mockery::mock(LoggerInterface::class);
@@ -162,7 +163,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             $client,
             $logger,
             $headerName,
-            $contextGenerator
+            'headerContextKey'
         );
 
         $middleware->process(
@@ -175,6 +176,10 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
     {
         $headerName = 'test';
         $rawBearer  = ['part1'];
+        $headerContextKey = 'headerContextKey';
+        $context = [
+            'test' => 1
+        ];
 
         /** @var MockInterface|ServerRequestInterface $request */
         $request = Mockery::mock(ServerRequestInterface::class);
@@ -187,6 +192,17 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 ]
             )->andReturn(
                 $rawBearer
+            );
+        $request
+            ->shouldReceive('getHeader')
+            ->once()
+            ->withArgs(
+                [
+                    $headerContextKey
+                ]
+            )
+            ->andReturn(
+                $context
             );
 
         /** @var MockInterface|Client $client */
@@ -243,23 +259,6 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 }
             )->andReturn($response);
 
-        $context = [
-            'test' => 1
-        ];
-
-        /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
-        $contextGenerator = Mockery::mock(RequestContextGeneratingInterface::class);
-        $contextGenerator
-            ->shouldReceive('generate')
-            ->once()
-            ->withArgs(
-                [
-                    $request
-                ]
-            )->andReturn(
-                $context
-            );
-
         /** @var MockInterface|LoggerInterface $logger */
         $logger = Mockery::mock(LoggerInterface::class);
         $logger
@@ -277,7 +276,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             $client,
             $logger,
             $headerName,
-            $contextGenerator
+            'headerContextKey'
         );
 
         $middleware->process(
@@ -290,6 +289,10 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
     {
         $headerName = 'test';
         $rawBearer  = ['part1 part2'];
+        $headerContextKey = 'headerContextKey';
+        $context = [
+            'test' => 1
+        ];
 
         /** @var MockInterface|ServerRequestInterface $request */
         $request = Mockery::mock(ServerRequestInterface::class);
@@ -302,6 +305,17 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 ]
             )->andReturn(
                 $rawBearer
+            );
+        $request
+            ->shouldReceive('getHeader')
+            ->once()
+            ->withArgs(
+                [
+                    $headerContextKey
+                ]
+            )
+            ->andReturn(
+                $context
             );
 
         $message   = 'Error message';
@@ -358,12 +372,11 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             ->shouldReceive('withBody')
             ->once()
             ->withArgs(
-                function (StreamInterface $stream) {
-                    $stream->rewind();
-                    $contents = $stream->getContents();
+                function (StreamInterface $stream) use ($message) {
+                    $contents = (string)$stream;
 
                     return ($contents === json_encode(
-                            ['status' => 'Unauthorized', 'message' => 'Incorrect ID token']
+                            ['status' => 'Unauthorized', 'message' => "An error during verification of the token occurred. Cause: [{$message}]"]
                         )
                     );
                 }
@@ -372,19 +385,6 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
         $context = [
             'test' => 1,
         ];
-
-        /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
-        $contextGenerator = Mockery::mock(RequestContextGeneratingInterface::class);
-        $contextGenerator
-            ->shouldReceive('generate')
-            ->once()
-            ->withArgs(
-                [
-                    $request,
-                ]
-            )->andReturn(
-                $context
-            );
 
         /** @var MockInterface|LoggerInterface $logger */
         $logger = Mockery::mock(LoggerInterface::class);
@@ -403,7 +403,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             $client,
             $logger,
             $headerName,
-            $contextGenerator
+            'headerContextKey'
         );
 
         $middleware->process(

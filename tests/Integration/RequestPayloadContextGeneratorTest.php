@@ -6,6 +6,7 @@ namespace Profesia\Psr\Middleware\Test\Integration;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
+use Profesia\Psr\Middleware\Exception\ContextGenerationException;
 use Profesia\Psr\Middleware\Extra\RequestPayloadContextGenerator;
 use DateTimeImmutable;
 use Psr\Http\Message\ServerRequestInterface;
@@ -35,7 +36,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ],
                     ]
                 ))->withParsedBody([]),
-                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
+                new ContextGenerationException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
                 (new ServerRequest(
@@ -51,7 +52,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         'message' => [],
                     ]
                 ),
-                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
+                new ContextGenerationException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
                 (new ServerRequest(
@@ -69,7 +70,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ],
                     ]
                 ),
-                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
+                new ContextGenerationException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
                 (new ServerRequest(
@@ -89,7 +90,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ],
                     ]
                 ),
-                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
+                new ContextGenerationException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
                 (new ServerRequest(
@@ -110,7 +111,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ],
                     ]
                 ),
-                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
+                new ContextGenerationException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
             [
                 (new ServerRequest(
@@ -132,7 +133,7 @@ class RequestPayloadContextGeneratorTest extends TestCase
                         ],
                     ]
                 ),
-                new RuntimeException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
+                new ContextGenerationException("Required structure of payload: [{$requiredKeysString}] is was not supplied in the message payload"),
             ],
         ];
     }
@@ -185,13 +186,13 @@ class RequestPayloadContextGeneratorTest extends TestCase
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @param RuntimeException       $exception
+     * @param ServerRequestInterface     $request
+     * @param ContextGenerationException $exception
      *
      * @return void
      * @dataProvider provideIncompleteRequestData
      */
-    public function testWillThrowAnExceptionOnRequestStructureMismatch(ServerRequestInterface $request, RuntimeException $exception): void
+    public function testWillThrowAnExceptionOnRequestStructureMismatch(ServerRequestInterface $request, ContextGenerationException $exception): void
     {
         $generator = new RequestPayloadContextGenerator(
             [
