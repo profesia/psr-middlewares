@@ -45,7 +45,7 @@ class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddlew
         $payload = $request->getParsedBody();
 
         if (is_array($payload) === false) {
-            $message = 'No payload supplied';
+            $message = 'Bad payload supplied';
             $this->logger->error($message, $context);
 
             return $this->createInvalidResponseWithHeaders(

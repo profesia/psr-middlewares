@@ -65,4 +65,9 @@ abstract class AbstractMessagingMiddleware implements MiddlewareInterface
 
         return $response;
     }
+
+    protected function getContextHeaderKey(): string
+    {
+        return $this->contextHeaderKey;
+    }
 }

@@ -45,7 +45,7 @@ class MessagingPayloadValueExtractionMiddlewareTest extends TestCase
                 200,
                 [
                     'status'  => 'Bad request',
-                    'message' => 'No payload supplied',
+                    'message' => 'Bad payload supplied',
                 ],
             ],
             [
@@ -61,7 +61,7 @@ class MessagingPayloadValueExtractionMiddlewareTest extends TestCase
                 200,
                 [
                     'status'  => 'Bad request',
-                    'message' => 'No payload supplied',
+                    'message' => 'Bad payload supplied',
                 ],
             ],
             [

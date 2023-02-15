@@ -36,7 +36,7 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
                 'test'
                 ],
                 null,
-                'No payload supplied'
+                'Bad payload supplied'
             ],
         ];
     }
