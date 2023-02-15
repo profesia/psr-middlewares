@@ -8,6 +8,9 @@ use Profesia\Psr\Middleware\Exception\ContextGenerationException;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
+/**
+ * @deprecated
+ */
 final class RequestPayloadContextGenerator implements RequestContextGeneratingInterface
 {
     public function __construct(
