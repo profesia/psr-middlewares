@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Profesia\Psr\Middleware;
 
 use Profesia\Psr\Middleware\Exception\BadConfigurationException;
-use Profesia\Psr\Middleware\Exception\ContextGenerationException;
-use Profesia\Psr\Middleware\Extra\RequestContextGeneratingInterface;
 use Profesia\Psr\Middleware\Extra\ServerVariablesStorageInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
