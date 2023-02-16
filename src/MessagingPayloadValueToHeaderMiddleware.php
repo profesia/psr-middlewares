@@ -42,7 +42,7 @@ class MessagingPayloadValueToHeaderMiddleware extends AbstractMessagingMiddlewar
         try {
             $headerValues = [];
             foreach ($this->requiredKeysStructure as $outputKey => $path) {
-                $headerValues[$outputKey] = self::extractPathValue($payload, explode('.', $path));
+                $headerValues[] = $outputKey . '=' . self::extractPathValue($payload, explode('.', $path));
             }
 
             return $handler->handle(

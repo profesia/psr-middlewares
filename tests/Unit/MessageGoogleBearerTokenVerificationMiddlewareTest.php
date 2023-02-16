@@ -43,7 +43,7 @@ class MessageGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
         $rawBearer  = ['par1 part2'];
         $headerContextKey = 'headerContextKey';
         $context = [
-            'test' => 1
+            'value=1'
         ];
 
         /** @var MockInterface|ServerRequestInterface $request */
@@ -141,10 +141,6 @@ class MessageGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
                 )->andReturn($response);
         }
 
-        $context = [
-            'test' => 1
-        ];
-
         $verifyTokenString = ($verifyTokenOutput === false) ? 'false' : 'true';
         /** @var MockInterface|LoggerInterface $logger */
         $logger = Mockery::mock(LoggerInterface::class);
@@ -154,7 +150,9 @@ class MessageGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             ->withArgs(
                 [
                     "Verification of token done with output: [{$verifyTokenString}]",
-                    $context,
+                    [
+                        'value' => '1'
+                    ],
                 ]
             );
 
@@ -178,7 +176,7 @@ class MessageGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
         $rawBearer  = ['part1'];
         $headerContextKey = 'headerContextKey';
         $context = [
-            'test' => 1
+            'value=1'
         ];
 
         /** @var MockInterface|ServerRequestInterface $request */
@@ -267,7 +265,9 @@ class MessageGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             ->withArgs(
                 [
                     'Bearer token has invalid format - it should contains two strings separated by a blank space',
-                    $context,
+                    [
+                        'value' => '1'
+                    ],
                 ]
             );
 
@@ -291,7 +291,7 @@ class MessageGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
         $rawBearer  = ['part1 part2'];
         $headerContextKey = 'headerContextKey';
         $context = [
-            'test' => 1
+            'value=1'
         ];
 
         /** @var MockInterface|ServerRequestInterface $request */
@@ -383,7 +383,7 @@ class MessageGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             )->andReturn($response);
 
         $context = [
-            'test' => 1,
+            'value=1',
         ];
 
         /** @var MockInterface|LoggerInterface $logger */
@@ -394,7 +394,9 @@ class MessageGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             ->withArgs(
                 [
                     "An error during verification of the token occurred. Cause: [{$message}]",
-                    $context,
+                    [
+                        'value' => '1'
+                    ],
                 ]
             );
 

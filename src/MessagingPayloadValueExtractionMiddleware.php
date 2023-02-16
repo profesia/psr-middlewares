@@ -93,8 +93,8 @@ class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddlew
             );
         }
 
-        $this->logger->info("Storing value: [{$extractedValue}] under key: [{$this->payloadValueStoreKey}]");
         $this->variablesStore->store($this->payloadValueStoreKey, $extractedValue);
+        $this->logger->info("Storing value: [{$extractedValue}] under key: [{$this->payloadValueStoreKey}]", $context);
 
         return $handler->handle($request);
     }

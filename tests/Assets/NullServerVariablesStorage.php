@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Profesia\Psr\Middleware\Test\Integration\Assets;
+namespace Profesia\Psr\Middleware\Test\Assets;
 
 use Profesia\Psr\Middleware\Extra\ServerVariablesStorageInterface;
 

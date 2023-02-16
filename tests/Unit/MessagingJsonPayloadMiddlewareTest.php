@@ -53,7 +53,9 @@ class MessagingJsonPayloadMiddlewareTest extends MockeryTestCase
                     $headerContextKey,
                 ]
             )->andReturn(
-                $context
+                [
+                    'test' => 'test=1'
+                ]
             );
         $request
             ->shouldReceive('getMethod')
@@ -122,7 +124,9 @@ class MessagingJsonPayloadMiddlewareTest extends MockeryTestCase
                     $headerContextKey,
                 ]
             )->andReturn(
-                $context
+                [
+                    'test' => 'test=1'
+                ]
             );
         $request
             ->shouldReceive('getHeaderLine')
@@ -244,7 +248,9 @@ class MessagingJsonPayloadMiddlewareTest extends MockeryTestCase
                     $headerContextKey,
                 ]
             )->andReturn(
-                $context
+                [
+                    'test' => 'test=1'
+                ]
             );
         $request
             ->shouldReceive('getHeaderLine')
@@ -322,7 +328,9 @@ class MessagingJsonPayloadMiddlewareTest extends MockeryTestCase
                     $headerContextKey,
                 ]
             )->andReturn(
-                $context
+                [
+                    'test' => 'test=1'
+                ]
             );
         $request
             ->shouldReceive('getHeaderLine')

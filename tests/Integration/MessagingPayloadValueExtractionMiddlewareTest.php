@@ -9,8 +9,8 @@ use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Profesia\Psr\Middleware\Exception\BadConfigurationException;
 use Profesia\Psr\Middleware\MessagingPayloadValueExtractionMiddleware;
-use Profesia\Psr\Middleware\Test\Integration\Assets\NullServerVariablesStorage;
-use Profesia\Psr\Middleware\Test\Integration\Assets\TestRequestHandler;
+use Profesia\Psr\Middleware\Test\Assets\NullServerVariablesStorage;
+use Profesia\Psr\Middleware\Test\Assets\TestRequestHandler;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\NullLogger;
 

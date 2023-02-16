@@ -53,7 +53,7 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
     {
         $storeKey = 'storeKey';
         $context  = [
-            'context' => [],
+            'test=1',
         ];
         $headerContextKey = 'headerContextKey';
 
@@ -127,7 +127,9 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
             ->withArgs(
                 [
                     $exceptionMessage,
-                    $context,
+                    [
+                        'test' => '1'
+                    ],
                 ]
             );
 
@@ -169,7 +171,7 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
         ];
         $storeKey = 'storeKey';
         $context  = [
-            'context' => [],
+            'test=2',
         ];
         $headerContextKey = 'headerContextKey';
 
@@ -205,7 +207,10 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
             ->once()
             ->withArgs(
                 [
-                    "Storing value: [{$value}] under key: [{$storeKey}]"
+                    "Storing value: [{$value}] under key: [{$storeKey}]",
+                    [
+                        'test' => '2'
+                    ]
                 ]
             );
 

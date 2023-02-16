@@ -31,7 +31,15 @@ abstract class AbstractMessagingMiddleware implements MiddlewareInterface
     protected function generateContext(ServerRequestInterface $request): array
     {
         if ($this->contextGenerated === false) {
-            $this->context = $request->getHeader($this->contextHeaderKey);
+            foreach ($request->getHeader($this->contextHeaderKey) as $headerLine) {
+                if (str_contains($headerLine, '=')) {
+                    [$headerName, $headerValue] = explode('=', $headerLine);
+
+                    $this->context[$headerName] = $headerValue;
+                } else {
+                    $this->context[] = $headerLine;
+                }
+            }
         }
 
         $this->contextGenerated = true;

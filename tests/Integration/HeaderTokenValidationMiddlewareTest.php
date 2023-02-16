@@ -9,7 +9,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Profesia\Psr\Middleware\HeaderTokenValidationMiddleware;
-use Profesia\Psr\Middleware\Test\Integration\Assets\TestRequestHandler;
+use Profesia\Psr\Middleware\Test\Assets\TestRequestHandler;
 
 class HeaderTokenValidationMiddlewareTest extends TestCase
 {

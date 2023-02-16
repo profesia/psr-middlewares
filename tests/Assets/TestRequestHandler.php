@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Profesia\Psr\Middleware\Test\Integration\Assets;
+namespace Profesia\Psr\Middleware\Test\Assets;
 
 use Nyholm\Psr7\Stream;
 use Psr\Http\Message\ResponseFactoryInterface;

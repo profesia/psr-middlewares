@@ -9,7 +9,7 @@ use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use PHPUnit\Framework\TestCase;
 use Profesia\Psr\Middleware\MessagingJsonPayloadMiddleware;
-use Profesia\Psr\Middleware\Test\Integration\Assets\TestRequestHandler;
+use Profesia\Psr\Middleware\Test\Assets\TestRequestHandler;
 use Psr\Log\NullLogger;
 
 class MessagingJsonPayloadMiddlewareTest extends TestCase
