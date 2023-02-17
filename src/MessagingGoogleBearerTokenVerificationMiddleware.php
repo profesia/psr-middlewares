@@ -66,13 +66,17 @@ class MessagingGoogleBearerTokenVerificationMiddleware extends AbstractMessaging
                     ['status' => 'Unauthorized', 'message' => 'Incorrect ID token']
                 );
             }
+
+            return $handler->handle($request);
         } catch (Exception $e) {
             $this->logger->error(
                 "An error during verification of the token occurred. Cause: [{$e->getMessage()}]",
                 $context
             );
-        }
 
-        return $handler->handle($request);
+            return $this->createInvalidResponseWithHeaders(
+                ['status' => 'Unauthorized', 'message' => 'Incorrect ID token']
+            );
+        }
     }
 }

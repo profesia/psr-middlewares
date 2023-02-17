@@ -192,6 +192,14 @@ class MessagingPayloadValueExtractionMiddlewareTest extends MockeryTestCase
 
         /** @var MockInterface|LoggerInterface $logger */
         $logger = Mockery::mock(LoggerInterface::class);
+        $logger
+            ->shouldReceive('info')
+            ->once()
+            ->withArgs(
+                [
+                    "Storing value: [$value] under key: [$storeKey]"
+                ]
+            );
 
         /** @var MockInterface|ServerVariablesStorageInterface $variableStorage */
         $variableStorage = Mockery::mock(ServerVariablesStorageInterface::class);

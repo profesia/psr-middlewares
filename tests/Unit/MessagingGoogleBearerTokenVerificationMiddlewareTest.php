@@ -18,7 +18,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use UnexpectedValueException;
 
-class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
+class MessagingGoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
 {
     public function provideDataForTokenVerification(): array
     {
@@ -128,7 +128,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
         }
 
         $context = [
-            'test' => 1
+            'test' => 1,
         ];
 
         /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
@@ -138,7 +138,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             ->once()
             ->withArgs(
                 [
-                    $request
+                    $request,
                 ]
             )->andReturn(
                 $context
@@ -244,7 +244,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             )->andReturn($response);
 
         $context = [
-            'test' => 1
+            'test' => 1,
         ];
 
         /** @var MockInterface|RequestContextGeneratingInterface $contextGenerator */
@@ -254,7 +254,7 @@ class GoogleBearerTokenVerificationMiddlewareTest extends MockeryTestCase
             ->once()
             ->withArgs(
                 [
-                    $request
+                    $request,
                 ]
             )->andReturn(
                 $context
