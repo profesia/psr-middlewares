@@ -7,6 +7,9 @@ namespace Profesia\Psr\Middleware\Extra;
 use Psr\Http\Message\ServerRequestInterface;
 use Exception;
 
+/**
+ * @deprecated
+ */
 interface RequestContextGeneratingInterface
 {
     /**
