@@ -12,6 +12,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @deprecated
+ */
 class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddleware
 {
     /**
