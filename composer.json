@@ -13,7 +13,8 @@
         "psr/http-server-middleware": "^1.0",
         "psr/http-factory": "^1.0",
         "ext-json": "*",
-        "google/apiclient": "^2.13"
+        "google/apiclient": "^2.13",
+        "profesia/correlation-id": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
