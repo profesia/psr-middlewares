@@ -14,6 +14,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
+/**
+ * @deprecated
+ */
 class MessagingPayloadValueExtractionMiddleware extends AbstractMessagingMiddleware
 {
     /**
